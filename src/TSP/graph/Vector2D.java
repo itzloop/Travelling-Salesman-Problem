@@ -8,6 +8,12 @@ public class Vector2D {
         this.y = y;
     }
 
+    public void set(double x , double y)
+    {
+        this.x = x;
+        this.y = y;
+    }
+
     public double getX() {
         return x;
     }
@@ -22,5 +28,10 @@ public class Vector2D {
 
     public void setY(double y) {
         this.y = y;
+    }
+
+    @Override
+    public String toString() {
+        return "("+x+ " , "+y+")";
     }
 }
