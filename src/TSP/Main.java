@@ -13,6 +13,9 @@ public class Main extends Application {
         Views views = new Views();
         primaryStage.setScene(new Scene(views.getParent()));
         views.handleEvents();
+        primaryStage.setOnCloseRequest(event -> {
+            System.exit(0);
+        });
         primaryStage.show();
     }
 }

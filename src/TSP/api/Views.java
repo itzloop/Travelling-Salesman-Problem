@@ -6,6 +6,7 @@ import TSP.graph.Graph;
 import TSP.graph.Node;
 import TSP.graph.Vector2D;
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
@@ -16,9 +17,11 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
+import javafx.stage.Screen;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Views  {
@@ -28,10 +31,14 @@ public class Views  {
     Pane centerPane;
     BorderPane borderPane;
     private State state;
-    private Button btnAddEdge;
+    private Button btnIdle;
     private Button btnAddVertex;
     private Button btnMoveVertex;
-    private Button btnIdle;
+    private Button btnRemoveVertex;
+    private Button btnAddEdge;
+    private Button btnRemoveEdge;
+    private Button btnReset;
+
     private Text lblState;
     private Vector2D mousePosition;
     Graph graph = new Graph();
@@ -44,8 +51,10 @@ public class Views  {
        }));
 
 
+
     public Views()
     {
+        Platform.setImplicitExit(false);
         this.state = State.IDLE;
         mousePosition = new Vector2D(0,0);
         setLayout();
@@ -59,8 +68,9 @@ public class Views  {
     {
         toolbar = new HBox();
         centerPane = new Pane();
-        toolbar.setStyle("-fx-background-color: gray");
-        centerPane.setStyle("-fx-background-color: white");
+        System.out.println(GV.toolbarColor);
+        toolbar.setStyle("-fx-background-color: " + GV.toolbarColor);
+        centerPane.setStyle("-fx-background-color: " + GV.backgroundColor);
         centerPane.setPrefWidth(800);
         centerPane.setPrefHeight(600);
         borderPane = new BorderPane();
@@ -72,55 +82,111 @@ public class Views  {
     
     private void setToolbar()
     {
+        //btn Idle setup
+        btnIdle = new Button("idle");
+        btnIdle.addEventHandler(MouseEvent.MOUSE_CLICKED , event -> {
+            this.state = State.IDLE;
+            resetColors();
+            btnIdle.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.backgroundColor);
+            btnAddVertex.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnMoveVertex.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnRemoveVertex.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnAddEdge.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnRemoveEdge.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnReset.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+
+        });
 
         //btn add vertex setup
         btnAddVertex= new Button("add vertex");
         btnAddVertex.addEventHandler(MouseEvent.MOUSE_CLICKED , event -> {
             this.state = State.ADD_VERTEX;
-            btnAddVertex.setStyle("-fx-background-radius: 0;-fx-background-color: white");
-            btnAddEdge.setStyle("-fx-background-radius: 0;-fx-background-color: gray");
-            btnMoveVertex.setStyle("-fx-background-radius: 0;-fx-background-color: gray");
-            btnIdle.setStyle("-fx-background-radius: 0;-fx-background-color: gray");
+            btnIdle.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnAddVertex.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.backgroundColor);
+            btnMoveVertex.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnRemoveVertex.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnAddEdge.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnRemoveEdge.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnReset.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+        });
+
+
+
+        //btn Move Vertex setup
+        btnMoveVertex = new Button("Move");
+        btnMoveVertex.addEventHandler(MouseEvent.MOUSE_CLICKED , event -> {
+            this.state = State.MOVE;
+            resetColors();
+            btnIdle.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnAddVertex.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnMoveVertex.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.backgroundColor);
+            btnRemoveVertex.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnAddEdge.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnRemoveEdge.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnReset.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+        });
+
+        //btn Remove vertex setup
+        btnRemoveVertex = new Button("remove vertex");
+        btnRemoveVertex.addEventHandler(MouseEvent.MOUSE_CLICKED , event -> {
+            this.state = State.REMOVE_VERTEX;
+            btnIdle.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnAddVertex.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnMoveVertex.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnRemoveVertex.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.backgroundColor);
+            btnAddEdge.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnRemoveEdge.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnReset.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
         });
 
         //btn add Edge setup
         btnAddEdge = new Button("add edge");
         btnAddEdge.addEventHandler(MouseEvent.MOUSE_CLICKED , event -> {
             this.state = State.ADD_EDGE;
-            btnAddVertex.setStyle("-fx-background-radius: 0;-fx-background-color: gray");
-            btnAddEdge.setStyle("-fx-background-radius: 0;-fx-background-color: white");
-            btnMoveVertex.setStyle("-fx-background-radius: 0;-fx-background-color: gray");
-            btnIdle.setStyle("-fx-background-radius: 0;-fx-background-color: gray");
+            btnIdle.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnAddVertex.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnMoveVertex.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnRemoveVertex.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnAddEdge.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.backgroundColor);
+            btnRemoveEdge.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnReset.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
         });
 
-        //btn Move setup
-        btnMoveVertex = new Button("Move");
-        btnMoveVertex.addEventHandler(MouseEvent.MOUSE_CLICKED , event -> {
-            this.state = State.MOVE;
-            btnAddVertex.setStyle("-fx-background-radius: 0;-fx-background-color: gray");
-            btnAddEdge.setStyle("-fx-background-radius: 0;-fx-background-color: gray");
-            btnMoveVertex.setStyle("-fx-background-radius: 0;-fx-background-color: white");
-            btnIdle.setStyle("-fx-background-radius: 0;-fx-background-color: gray;-fx-border-insets: 0");
+        //btn Remove Edge setup
+        btnRemoveEdge = new Button("remove edge");
+        btnRemoveEdge.addEventHandler(MouseEvent.MOUSE_CLICKED , event -> {
+            this.state = State.REMOVE_EDGE;
+            btnIdle.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnAddVertex.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnMoveVertex.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnRemoveVertex.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnAddEdge.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnRemoveEdge.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.backgroundColor);
+            btnReset.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
         });
 
-        //btn Idle setup
-        btnIdle = new Button("idle");
-        btnIdle.addEventHandler(MouseEvent.MOUSE_CLICKED , event -> {
-            this.state = State.IDLE;
-            resetColors();
-            btnAddVertex.setStyle("-fx-background-radius: 0;-fx-background-color: gray");
-            btnAddEdge.setStyle("-fx-background-radius: 0;-fx-background-color: gray");
-            btnMoveVertex.setStyle("-fx-background-radius: 0;-fx-background-color: gray");
-            btnIdle.setStyle("-fx-background-radius: 0;-fx-background-color: white");
+        //btn Reset setup
+        btnReset = new Button("reset");
+        btnReset.addEventHandler(MouseEvent.MOUSE_CLICKED , event -> {
+            this.state = State.RESET;
+            btnIdle.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnAddVertex.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnMoveVertex.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnRemoveVertex.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnAddEdge.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnRemoveEdge.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnReset.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.backgroundColor);
+        });
 
-        } );
+        btnIdle.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.backgroundColor);
+        btnAddVertex.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+        btnMoveVertex.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+        btnRemoveVertex.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+        btnAddEdge.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+        btnRemoveEdge.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+        btnReset.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
 
-        btnAddVertex.setStyle("-fx-background-radius: 0;-fx-background-color: gray");
-        btnAddEdge.setStyle("-fx-background-radius: 0;-fx-background-color: gray");
-        btnMoveVertex.setStyle("-fx-background-radius: 0;-fx-background-color: gray");
-        btnIdle.setStyle("-fx-background-radius: 0;-fx-background-color: white");
-
-        toolbar.getChildren().addAll(btnIdle,btnAddVertex,btnAddEdge,btnMoveVertex);
+        toolbar.getChildren().addAll(btnIdle,btnAddVertex,btnMoveVertex,btnRemoveVertex,btnAddEdge,btnRemoveEdge,btnReset);
     }
     
     public Parent getParent() {
@@ -132,7 +198,7 @@ public class Views  {
         for(javafx.scene.Node n : centerPane.getChildren()){
             if(n instanceof Node)
             {
-                ((Node)n).getCircle().setFill(Color.WHITE);
+                ((Node)n).getCircle().setFill(GV.nodeFillColor);
             }
         }
     }
@@ -141,23 +207,39 @@ public class Views  {
     public void handleEvents()
     {
 
+
         centerPane.addEventHandler(MouseEvent.MOUSE_CLICKED , event -> {
+            Node node;
             switch (state)
                {
                    case ADD_VERTEX:
-                       Node node = new Node(label.getAndIncrement() + "" , new Vector2D(event.getX() , event.getY()));
+                       node = new Node(label.getAndIncrement() + "" , new Vector2D(event.getX() , event.getY()));
                        nodes.put(node.getCircle() , node);
                        graph.addVertex(node);
                        node.addEventHandler(MouseEvent.MOUSE_DRAGGED,event1 -> {
                            switch (state)
                            {
+
                                case MOVE:
                                    node.setLayoutX(mousePosition.getX() - GV.radius);
                                    node.setLayoutY(mousePosition.getY() - GV.radius);
-                                   System.out.println(graph.edges(node));
+                                   node.getLocation().set(mousePosition.getX() , mousePosition.getY());
                                    graph.edges(node).forEach(e -> {
-                                       e.setStartX(mousePosition.getX());
-                                       e.setStartY(mousePosition.getY());
+                                       if(e.isContainsLine())
+                                       {
+                                           e.setStartX(e.getTo().getLocation().getX());
+                                           e.setStartY(e.getTo().getLocation().getY());
+                                           e.setEndX(e.getFrom().getLocation().getX());
+                                           e.setEndY(e.getFrom().getLocation().getY());
+                                       }
+                                       else {
+                                           Edge edge = graph.getEdge(e.getTo() , e.getFrom());
+                                           edge.setStartX(edge.getFrom().getLocation().getX());
+                                           edge.setStartY(edge.getFrom().getLocation().getY());
+                                           edge.setEndX(edge.getTo().getLocation().getX());
+                                           edge.setEndY(edge.getTo().getLocation().getY());
+
+                                       }
                                    });
                                    break;
                            }
@@ -168,7 +250,7 @@ public class Views  {
                    case ADD_EDGE:
                        if(event.getTarget() instanceof Circle)
                        {
-                           ((Circle)event.getTarget()).setFill(Color.RED);
+                           ((Circle)event.getTarget()).setFill(Color.rgb(209, 57, 61));
                            firstNode = nodes.get( event.getTarget());
                            state = State.ADD_SECOND_EDGE;
                        }
@@ -176,15 +258,41 @@ public class Views  {
                    case ADD_SECOND_EDGE:
                        if(event.getTarget() instanceof Circle)
                        {
-                           ((Circle)event.getTarget()).setFill(Color.RED);
+                           ((Circle)event.getTarget()).setFill(GV.nodeSelectedColor);
                            secondNode= nodes.get(event.getTarget());
                            Edge edge = new Edge(firstNode , secondNode , 10);
-                           centerPane.getChildren().addAll(edge , graph.re);
-                           graph.addEdge(edge);
+                           edge.setContainsLine(true);
+                           if(graph.addEdge(edge))
+                           {
+                                centerPane.getChildren().addAll(edge);
+                                for (int i = 0 ; i < centerPane.getChildren().size() ; i++)
+                                {
+                                    if(centerPane.getChildren().get(i) instanceof Edge)
+                                    {
+                                        centerPane.getChildren().get(i).toBack();
+                                    }
+                                }
+                           }
+                           ((Circle)event.getTarget()).setFill(GV.nodeFillColor);
                        }
                        break;
                    case IDLE:
                        resetColors();
+                       break;
+                   case REMOVE_EDGE:
+                       if(event.getTarget() instanceof Edge)
+                       {
+                            System.out.println(graph);
+                            graph.removeEdge((Edge) event.getTarget());
+                            centerPane.getChildren().removeAll((Edge)event.getTarget());
+                       }
+                       break;
+                   case REMOVE_VERTEX:
+                        centerPane.getChildren().remove(nodes.get(event.getTarget()));
+                        centerPane.getChildren().removeAll(graph.removeVertex(nodes.get(event.getTarget())));
+                       break;
+                   case RESET:
+                       System.out.println(graph);
                        break;
                }
 

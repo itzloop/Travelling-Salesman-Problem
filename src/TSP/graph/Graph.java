@@ -1,11 +1,7 @@
 package TSP.graph;
 
-import sun.security.x509.EDIPartyName;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Graph {
 
@@ -25,21 +21,59 @@ public class Graph {
             adj.put(edge.getTo(), new LinkedList());
         if (edge.getFrom().equals(edge.getTo()))
             return false;
-
-        Edge edge2 = reverseEdge(edge);
         if(adj.get(edge.getFrom()).contains(edge))
            return false;
         adj.get(edge.getFrom()).add(edge);
-        adj.get(edge.getTo()).add(edge2);
+        adj.get(edge.getTo()).add(reverseEdge(edge));
         return true;
 
     }
 
-    private Edge reverseEdge(Edge edge)
-    {
-        return new Edge(edge.getTo() , edge.getFrom() , edge.getWeight());
+    public boolean removeEdge(Edge edge) {
+        if (!adj.containsKey(edge.getFrom()) || !adj.containsKey(edge.getTo()))
+            return false;
+        Iterator<Edge> fromAdj = adj.get(edge.getFrom()).iterator();
+        Iterator<Edge> toAdj = adj.get(edge.getTo()).iterator();
+        while (fromAdj.hasNext())
+        {
+            Edge e = fromAdj.next();
+            if(e.getTo().equals(edge.getTo()))
+            {
+                fromAdj.remove();
+                break;
+            }
+        }
+
+        while (toAdj.hasNext())
+        {
+            Edge e = toAdj.next();
+            if(e.getFrom().equals(edge.getTo()))
+            {
+                toAdj.remove();
+                break;
+            }
+        }
+        return true;
     }
 
+
+    public Edge getEdge(Node from , Node to)
+    {
+        for(Edge e : adj.get(from))
+        {
+            if(e.getFrom().equals(from) && e.getTo().equals(to))
+                return e;
+        }
+        return null;
+    }
+
+
+    private Edge reverseEdge(Edge edge)
+    {
+        Edge e = new Edge(edge.getTo() , edge.getFrom() , edge.getWeight());
+        e.setContainsLine(false);
+        return e;
+    }
     public List<Edge> edges(Node node)
     {
         return adj.get(node);
@@ -49,6 +83,18 @@ public class Graph {
         if(!adj.containsKey(vertex))
             adj.put(vertex , new LinkedList());
     }
+
+    public List<Edge> removeVertex(Node node)
+    {
+        if(!adj.containsKey(node))
+            return null;
+        List<Edge> edges = adj.get(node);
+        adj.remove(node);
+        return edges;
+    }
+
+
+
 
     @Override
     public String toString() {

@@ -1,7 +1,6 @@
 package TSP.graph;
 
 import TSP.GV;
-import com.sun.javafx.scene.paint.GradientUtils;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -15,10 +14,10 @@ public class Node extends StackPane {
     private Text label;
     private Circle circle;
     private Vector2D location;
-
     public Node(String label ,Vector2D location){
-        circle = new Circle(GV.radius ,Color.WHITE);
-        circle.setStroke(Color.BLACK);
+        circle = new Circle(GV.radius ,GV.nodeFillColor);
+        circle.setStroke(GV.nodeStrokeColor);
+        circle.setStrokeWidth(GV.nodeStrokeSize);
         this.label = new Text(label);
         this.label.setStyle("-fx-font-size: 25");
         this.location = location;
@@ -50,5 +49,10 @@ public class Node extends StackPane {
 
     public void setLocation(Vector2D location) {
         this.location = location;
+    }
+
+    @Override
+    public String toString() {
+        return label.getText() + " : "+ location;
     }
 }

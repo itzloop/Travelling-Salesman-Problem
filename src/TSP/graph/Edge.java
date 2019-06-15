@@ -1,5 +1,6 @@
 package TSP.graph;
 
+import TSP.GV;
 import javafx.geometry.Point2D;
 import javafx.scene.shape.Line;
 
@@ -7,15 +8,25 @@ public class Edge extends Line {
     private Node from;
     private Node to;
     private int weight;
+    private boolean containsLine;
     public Edge(Node from , Node to , int weight)
     {
         super(from.getLocation().getX() , from.getLocation().getY(),to.getLocation().getX() , to.getLocation().getY());
-//        System.out.println(from.getLocation().getX() +"::"+ from.getLocation().getY()+"::"+to.getLocation().getX() +"::"+ to.getLocation().getY());
+        super.setStrokeWidth(GV.edgeStrokeSize);
+        super.setStroke(GV.edgeColor);
         this.from = from;
         this.to = to;
         this.weight = weight;
         //System.out.println(from.getCircle().getCenterX()+":"+from.getCircle().getLayoutY()+":"+to.getCircle().getCenterX()+":"+to.getCircle().getCenterY());
 
+    }
+
+    public boolean isContainsLine() {
+        return containsLine;
+    }
+
+    public void setContainsLine(boolean containsLine) {
+        this.containsLine = containsLine;
     }
 
     public Node getFrom() {
