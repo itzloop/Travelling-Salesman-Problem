@@ -88,8 +88,28 @@ public class Graph {
     {
         if(!adj.containsKey(node))
             return null;
-        List<Edge> edges = adj.get(node);
+        List<Edge> edges = new ArrayList<>();
+        edges.addAll(adj.get(node));
+        for (Edge e : adj.get(node))
+        {
+            List<Edge> tempEdges = new ArrayList<>();
+            if(adj.get(e.getTo()) != null)
+            {
+                tempEdges.addAll(adj.get(e.getTo()));
+
+                for (int i = 0 ; i < tempEdges.size() ; i++)
+                {
+                    if(tempEdges.get(i).getTo().equals(node))
+                    {
+                        edges.add(tempEdges.get(i));
+
+                    }
+                }
+                adj.get(e.getTo()).removeAll(tempEdges);
+            }
+        }
         adj.remove(node);
+        System.out.println(edges);
         return edges;
     }
 

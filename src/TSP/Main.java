@@ -8,8 +8,11 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 public class Main extends Application {
+
+    public static Stage stage;
     @Override
     public void start(Stage primaryStage) throws Exception {
+        stage = primaryStage;
         Views views = new Views();
         primaryStage.setScene(new Scene(views.getParent()));
         views.handleEvents();

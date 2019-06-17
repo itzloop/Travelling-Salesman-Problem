@@ -1,10 +1,12 @@
 package TSP.graph;
 
 import TSP.GV;
-import javafx.geometry.Point2D;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
+import javafx.scene.text.Text;
 
 public class Edge extends Line {
+    private Text weightLable;
     private Node from;
     private Node to;
     private int weight;
@@ -17,8 +19,19 @@ public class Edge extends Line {
         this.from = from;
         this.to = to;
         this.weight = weight;
-        //System.out.println(from.getCircle().getCenterX()+":"+from.getCircle().getLayoutY()+":"+to.getCircle().getCenterX()+":"+to.getCircle().getCenterY());
+        weightLable = new Text(weight + "");
+        weightLable.setX((from.getLocation().getX() + to.getLocation().getX())/2);
+        weightLable.setY((from.getLocation().getY() + to.getLocation().getY())/2);
+        weightLable.setFill(GV.nodeSelectedColor);
+        weightLable.setStyle("-fx-font-size: 25");
+    }
 
+    public Text getWeightLable() {
+        return weightLable;
+    }
+
+    public void setWeightLable(Text weightLable) {
+        this.weightLable = weightLable;
     }
 
     public boolean isContainsLine() {
@@ -60,7 +73,7 @@ public class Edge extends Line {
     @Override
     public String toString() {
 
-        return from.getLabel().getText() + " <-> " + to.getLabel().getText();
+        return from.getLabel().getText() + " -> " + to.getLabel().getText() + " weight: " + weight;
     }
 }
 

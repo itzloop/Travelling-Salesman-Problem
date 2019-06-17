@@ -15,5 +15,7 @@ public class GV {
     public static final Color nodeSelectedColor= Color.rgb(209, 57, 61);
     public static final Color nodeStrokeColor= Color.BLACK;
     public static final Color edgeColor = Color.BLACK;
+    public static final String edgeWeightRegex = "[0-9]*";
+
 
 }
