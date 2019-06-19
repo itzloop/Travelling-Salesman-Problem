@@ -102,10 +102,10 @@ public class Graph {
                     if(tempEdges.get(i).getTo().equals(node))
                     {
                         edges.add(tempEdges.get(i));
+                        adj.get(e.getTo()).remove(tempEdges.get(i));
 
                     }
                 }
-                adj.get(e.getTo()).removeAll(tempEdges);
             }
         }
         adj.remove(node);

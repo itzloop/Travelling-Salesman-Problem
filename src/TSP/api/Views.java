@@ -32,7 +32,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Views  {
-    private static final AtomicInteger label = new AtomicInteger(0);
+    private static AtomicInteger label = new AtomicInteger(0);
     Parent root;
     HBox toolbar;
     Pane centerPane;
@@ -97,7 +97,7 @@ public class Views  {
         TextField txtEdgeWeight = new TextField();
         //TODO add validation for this later
         txtEdgeWeight.setPromptText("enter edge weight.");
-        txtEdgeWeight.addEventHandler(KeyEvent.KEY_TYPED , event -> {
+        txtEdgeWeight.addEventHandler(KeyEvent.KEY_RELEASED , event -> {
             if(!txtEdgeWeight.getText().trim().equals(""))
             {
                 if(txtEdgeWeight.getText().trim().matches(GV.edgeWeightRegex))
@@ -209,7 +209,9 @@ public class Views  {
         //btn Reset setup
         btnReset = new Button("reset");
         btnReset.addEventHandler(MouseEvent.MOUSE_CLICKED , event -> {
-            this.state = State.RESET;
+            graph = new Graph();
+            centerPane.getChildren().clear();
+            label = new AtomicInteger(0);
             btnIdle.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
             btnAddVertex.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
             btnMoveVertex.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
@@ -300,11 +302,11 @@ public class Views  {
                        if(event.getTarget() instanceof Circle)
                        {
                            firstNode = (Node)((Circle)event.getTarget()).getParent();
-                           ((Circle)event.getTarget()).setFill(Color.rgb(209, 57, 61));
+                           ((Node)((Circle)event.getTarget()).getParent()).getCircle().setFill(Color.rgb(209, 57, 61));
                            state = State.ADD_SECOND_EDGE;
                        }else if(event.getTarget() instanceof Text){
-                           ((Node)((Text)event.getTarget()).getParent()).getCircle().setFill(Color.rgb(209, 57, 61));
                            firstNode = (Node)((Text)event.getTarget()).getParent();
+                           ((Node)((Text)event.getTarget()).getParent()).getCircle().setFill(Color.rgb(209, 57, 61));
                            state = State.ADD_SECOND_EDGE;
                        }
                        break;
@@ -312,14 +314,10 @@ public class Views  {
                        if(event.getTarget() instanceof Circle)
                        {
                            setEdgeWeight();
-                           System.out.println("Hello");
+                           ((Node)((Circle)event.getTarget()).getParent()).getCircle().setFill(GV.nodeSelectedColor);
                            secondNode= (Node)((Circle)event.getTarget()).getParent();
-                           ((Circle)event.getTarget()).setFill(GV.nodeSelectedColor);
-                           if(firstNode == null) {
-                               System.out.println("from null");
-                           }
                            Edge edge = new Edge(firstNode , secondNode , edgeWeight);
-                           System.out.println(edge.getWeight());
+                           edge.setContainsLine(true);
                            if(graph.addEdge(edge))
                            {
                                 centerPane.getChildren().addAll(edge , edge.getWeightLable());
@@ -338,10 +336,7 @@ public class Views  {
                            setEdgeWeight();
                            ((Node)((Text)event.getTarget()).getParent()).getCircle().setFill(GV.nodeSelectedColor);
                            secondNode= (Node)((Text)event.getTarget()).getParent();
-                           if(secondNode != null)
-                               System.out.println("to null");
                            Edge edge = new Edge(firstNode , secondNode , edgeWeight);
-                           System.out.println(edge.getWeight());
                            edge.setContainsLine(true);
                            if(graph.addEdge(edge))
                            {
@@ -388,9 +383,6 @@ public class Views  {
                             }
                             centerPane.getChildren().removeAll(edges);
                         }
-                       break;
-                   case RESET:
-                       System.out.println(graph);
                        break;
                }
 
