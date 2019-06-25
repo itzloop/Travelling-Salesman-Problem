@@ -1,17 +1,16 @@
 package TSP.graph;
 
 import TSP.GV;
-import javafx.scene.paint.Color;
+import javafx.scene.control.Label;
 import javafx.scene.shape.Line;
-import javafx.scene.text.Text;
 
 public class Edge extends Line {
-    private Text weightLable;
+    private Label weightLabel;
     private Node from;
     private Node to;
-    private int weight;
+    private double weight;
     private boolean containsLine;
-    public Edge(Node from , Node to , int weight)
+    public Edge(Node from , Node to , double weight)
     {
         super(from.getLocation().getX() , from.getLocation().getY(),to.getLocation().getX() , to.getLocation().getY());
         super.setStrokeWidth(GV.edgeStrokeSize);
@@ -19,20 +18,24 @@ public class Edge extends Line {
         this.from = from;
         this.to = to;
         this.weight = weight;
-        weightLable = new Text(weight + "");
-        weightLable.setX((from.getLocation().getX() + to.getLocation().getX())/2);
-        weightLable.setY((from.getLocation().getY() + to.getLocation().getY())/2);
-        weightLable.setFill(GV.nodeSelectedColor);
-        weightLable.setStyle("-fx-font-size: 25");
+        weightLabel = new Label(String.format("%.2f", weight));
+        weightLabel.setLayoutX((from.getLocation().getX() + to.getLocation().getX())/2 - weightLabel.getWidth()/2);
+        weightLabel.setLayoutY((from.getLocation().getY() + to.getLocation().getY())/2 - weightLabel.getHeight()/2);
+        weightLabel.setTextFill(GV.nodeSelectedColor);
+        weightLabel.setStyle("-fx-font-size: 15;-fx-background-color: white");
+
     }
 
-    public Text getWeightLable() {
-        return weightLable;
+    public Label getWeightLabel() {
+        return weightLabel;
     }
 
-    public void setWeightLable(Text weightLable) {
-        this.weightLable = weightLable;
+
+    public double getMidPoint()
+    {
+        return Math.abs(this.getStartX() - this.getEndX())/2 + Math.abs(this.getStartY() - this.getEndY())/2;
     }
+
 
     public boolean isContainsLine() {
         return containsLine;
@@ -50,7 +53,7 @@ public class Edge extends Line {
         return to;
     }
 
-    public int getWeight() {
+    public double getWeight() {
         return weight;
     }
 

@@ -51,6 +51,30 @@ public class Node extends StackPane {
         this.location = location;
     }
 
+
+    public static double distance(Node from , Node to)
+    {
+        double distance = Math.sqrt(Math.pow(to.getLocation().getX()-from.getLocation().getX() , 2) +
+                Math.pow(to.getLocation().getY()-from.getLocation().getY() , 2)
+        );
+        return distance;
+    }
+
+    public static String distanceStr(Node from , Node to)
+    {
+
+        return String.format("%.2f",distance(from,to));
+    }
+
+    public static double angle(Edge edge)
+    {
+        Node from = edge.getFrom();
+        Node to = edge.getTo();
+        double slope = (to.getLocation().getY() - from.getLocation().getY()) / (to.getLocation().getX() - from.getLocation().getX());
+        System.out.println(Math.atan(slope));
+        return Math.atan(slope);
+    }
+
     @Override
     public String toString() {
         return label.getText() + " : "+ location;

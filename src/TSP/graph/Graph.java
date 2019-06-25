@@ -121,12 +121,12 @@ public class Graph {
         StringBuilder graph = new StringBuilder();
         for (Node n : adj.keySet())
         {
-            graph.append(n.getLabel().getText()+": {");
+            graph.append(n.getLabel().getText()+ n.getLocation()+ ": {");
             for (Edge e : adj.get(n))
             {
                 graph.append(e.getTo().getLabel().getText()+ " ," );
             }
-            graph.append("\n");
+            graph.append("\n*********************************\n");
         }
         return graph.toString();
     }

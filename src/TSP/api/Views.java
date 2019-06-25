@@ -7,32 +7,27 @@ import TSP.graph.Graph;
 import TSP.graph.Node;
 import TSP.graph.Vector2D;
 import javafx.application.Platform;
-import javafx.concurrent.Task;
+import javafx.event.Event;
+import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
+import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
-import javafx.stage.Modality;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Views  {
-    private static AtomicInteger label = new AtomicInteger(0);
+
     Parent root;
     HBox toolbar;
     Pane centerPane;
@@ -45,16 +40,17 @@ public class Views  {
     private Button btnAddEdge;
     private Button btnRemoveEdge;
     private Button btnReset;
-    private Text lblState;
-    private Vector2D mousePosition;
+    private Button btnTSP;
     Graph graph = new Graph();
+    private Stage showGraphSage;
     private Node firstNode;
     private Node secondNode;
+    private static double edgeWeight = -1;
+    private static AtomicInteger label = new AtomicInteger(0);
     private Thread mousePositionListener = new Thread(() ->
        centerPane.addEventHandler(MouseEvent.ANY , event -> {
-           mousePosition.set(event.getX() , event.getY());
+           GV.mousePosition.set(event.getX() , event.getY());
        }));
-    private static int edgeWeight = -1;
 
 
 
@@ -62,7 +58,6 @@ public class Views  {
     {
         Platform.setImplicitExit(false);
         this.state = State.IDLE;
-        mousePosition = new Vector2D(0,0);
         setLayout();
         setToolbar();
         this.state = State.IDLE;
@@ -83,45 +78,13 @@ public class Views  {
         borderPane.setCenter(centerPane);
         borderPane.setTop(toolbar);
         root = new Pane(borderPane);
+        Main.stage.widthProperty().addListener((observableValue, number, t1) -> borderPane.setPrefWidth(t1.doubleValue()));
+        Main.stage.heightProperty().addListener((observableValue, number, t1) -> borderPane.setPrefHeight(t1.doubleValue()));
+        showGraph();
     }
 
 
-    public void setEdgeWeight()
-    {
-        Stage stage = new Stage();
-        stage.initOwner(Main.stage);
-        stage.initStyle(StageStyle.UNDECORATED);
-        stage.initModality(Modality.WINDOW_MODAL);
-        Button btnSubmit = new Button("submit1");
-        btnSubmit.setDisable(true);
-        TextField txtEdgeWeight = new TextField();
-        //TODO add validation for this later
-        txtEdgeWeight.setPromptText("enter edge weight.");
-        txtEdgeWeight.addEventHandler(KeyEvent.KEY_RELEASED , event -> {
-            if(!txtEdgeWeight.getText().trim().equals(""))
-            {
-                if(txtEdgeWeight.getText().trim().matches(GV.edgeWeightRegex))
-                {
-                    btnSubmit.setDisable(false);
-                }
-                else
-                    btnSubmit.setDisable(true);
-            }
-            else
-                btnSubmit.setDisable(true);
-        });
-        btnSubmit.setOnAction(event -> {
-            edgeWeight = Integer.parseInt(txtEdgeWeight.getText().trim());
-            stage.close();
-        });
-
-        HBox hBox = new HBox(txtEdgeWeight , btnSubmit);
-        stage.setScene(new Scene(hBox));
-        stage.showAndWait();
-    }
-
-    private void setToolbar()
-    {
+    private void setToolbar() {
         //btn Idle setup
         btnIdle = new Button("idle");
         btnIdle.addEventHandler(MouseEvent.MOUSE_CLICKED , event -> {
@@ -133,6 +96,8 @@ public class Views  {
             btnRemoveVertex.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
             btnAddEdge.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
             btnRemoveEdge.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnTSP.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            
             btnReset.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
 
         });
@@ -147,6 +112,8 @@ public class Views  {
             btnRemoveVertex.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
             btnAddEdge.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
             btnRemoveEdge.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnTSP.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            
             btnReset.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
         });
 
@@ -163,6 +130,8 @@ public class Views  {
             btnRemoveVertex.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
             btnAddEdge.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
             btnRemoveEdge.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnTSP.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            
             btnReset.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
         });
 
@@ -176,6 +145,8 @@ public class Views  {
             btnRemoveVertex.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.backgroundColor);
             btnAddEdge.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
             btnRemoveEdge.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnTSP.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            
             btnReset.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
         });
 
@@ -190,6 +161,8 @@ public class Views  {
             btnRemoveVertex.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
             btnAddEdge.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.backgroundColor);
             btnRemoveEdge.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnTSP.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            
             btnReset.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
         });
 
@@ -203,8 +176,25 @@ public class Views  {
             btnRemoveVertex.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
             btnAddEdge.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
             btnRemoveEdge.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.backgroundColor);
+            btnTSP.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            
             btnReset.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
         });
+
+        btnTSP = new Button("run TSP");
+        btnTSP.addEventHandler(MouseEvent.MOUSE_CLICKED , event -> {
+            btnIdle.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnAddVertex.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnMoveVertex.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnRemoveVertex.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnAddEdge.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnRemoveEdge.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnTSP.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.backgroundColor);
+            
+            btnReset.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+        });
+
+
 
         //btn Reset setup
         btnReset = new Button("reset");
@@ -212,13 +202,16 @@ public class Views  {
             graph = new Graph();
             centerPane.getChildren().clear();
             label = new AtomicInteger(0);
-            btnIdle.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnIdle.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.backgroundColor);
             btnAddVertex.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
             btnMoveVertex.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
             btnRemoveVertex.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
             btnAddEdge.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
             btnRemoveEdge.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
-            btnReset.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.backgroundColor);
+            btnTSP.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            
+            btnReset.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+            btnIdle.fire();
         });
 
         btnIdle.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.backgroundColor);
@@ -227,11 +220,45 @@ public class Views  {
         btnRemoveVertex.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
         btnAddEdge.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
         btnRemoveEdge.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+        btnTSP.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
+        
         btnReset.setStyle("-fx-background-radius: 0;-fx-background-color: "+GV.toolbarColor);
 
-        toolbar.getChildren().addAll(btnIdle,btnAddVertex,btnMoveVertex,btnRemoveVertex,btnAddEdge,btnRemoveEdge,btnReset);
+        toolbar.getChildren().addAll(btnIdle,btnAddVertex,btnMoveVertex,btnRemoveVertex,btnAddEdge,btnRemoveEdge,btnTSP,btnReset);
     }
-    
+
+    private void showGraph() {
+        if(showGraphSage != null)
+            return;
+        showGraphSage = new Stage();
+        Text label = new Text(graph.toString());
+        ScrollPane pane = new ScrollPane();
+        Scene scene = new Scene(pane , 300,700);
+        label.wrappingWidthProperty().bind(scene.widthProperty());
+        pane.setContent(label);
+        pane.setFitToWidth(true);
+        pane.setFitToHeight(true);
+        showGraphSage.setScene(scene);
+        showGraphSage.setX(Screen.getPrimary().getBounds().getWidth()/2 - 700);
+        showGraphSage.setY(Screen.getPrimary().getBounds().getHeight()/2 - 400);
+        showGraphSage.setOnCloseRequest(windowEvent -> {
+            showGraphSage.close();
+            showGraphSage = null;
+        });
+        new Thread(() -> {
+            while (showGraphSage != null)
+            {
+                Platform.runLater(() -> label.setText(graph.toString()));
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+        showGraphSage.show();
+    }
+
     public Parent getParent() {
         return root;
 
@@ -249,144 +276,141 @@ public class Views  {
 
     public void handleEvents()
     {
-
-
         centerPane.addEventHandler(MouseEvent.MOUSE_CLICKED , event -> {
-            Node node;
+
             switch (state)
                {
                    case ADD_VERTEX:
-                       node = new Node(label.getAndIncrement() + "" , new Vector2D(event.getX() , event.getY()));
-                       graph.addVertex(node);
-                       node.addEventHandler(MouseEvent.MOUSE_DRAGGED,event1 -> {
-                           switch (state)
-                           {
-
-                               case MOVE:
-                                   node.setLayoutX(mousePosition.getX() - GV.radius);
-                                   node.setLayoutY(mousePosition.getY() - GV.radius);
-                                   node.getLocation().set(mousePosition.getX() , mousePosition.getY());
-                                   graph.edges(node).forEach(e -> {
-                                       if(e.isContainsLine())
-                                       {
-                                           System.out.println(e);
-                                           e.getWeightLable().setX((e.getFrom().getLocation().getX() + e.getTo().getLocation().getX())/2);
-                                           e.getWeightLable().setY((e.getFrom().getLocation().getY() + e.getTo().getLocation().getY())/2);
-                                           e.setStartX(e.getTo().getLocation().getX());
-                                           e.setStartY(e.getTo().getLocation().getY());
-                                           e.setEndX(e.getFrom().getLocation().getX());
-                                           e.setEndY(e.getFrom().getLocation().getY());
-                                       }
-                                       else {
-                                           Edge edge = graph.getEdge(e.getTo() , e.getFrom());
-                                           System.out.println(edge);
-                                           edge.getWeightLable().setX((edge.getFrom().getLocation().getX() + edge.getTo().getLocation().getX())/2);
-                                           edge.getWeightLable().setY((edge.getFrom().getLocation().getY() + edge.getTo().getLocation().getY())/2);
-                                           edge.setStartX(edge.getFrom().getLocation().getX());
-                                           edge.setStartY(edge.getFrom().getLocation().getY());
-                                           edge.setEndX(edge.getTo().getLocation().getX());
-                                           edge.setEndY(edge.getTo().getLocation().getY());
-
-                                       }
-
-                                   });
-
-                                   break;
-                           }
-
-                       });
-                       centerPane.getChildren().addAll(node);
+                       addVertex(event);
                        break;
                    case ADD_EDGE:
                        resetColors();
-                       if(event.getTarget() instanceof Circle)
-                       {
-                           firstNode = (Node)((Circle)event.getTarget()).getParent();
-                           ((Node)((Circle)event.getTarget()).getParent()).getCircle().setFill(Color.rgb(209, 57, 61));
-                           state = State.ADD_SECOND_EDGE;
-                       }else if(event.getTarget() instanceof Text){
-                           firstNode = (Node)((Text)event.getTarget()).getParent();
-                           ((Node)((Text)event.getTarget()).getParent()).getCircle().setFill(Color.rgb(209, 57, 61));
-                           state = State.ADD_SECOND_EDGE;
-                       }
+                       addEdge(event);
                        break;
-                   case ADD_SECOND_EDGE:
-                       if(event.getTarget() instanceof Circle)
-                       {
-                           setEdgeWeight();
-                           ((Node)((Circle)event.getTarget()).getParent()).getCircle().setFill(GV.nodeSelectedColor);
-                           secondNode= (Node)((Circle)event.getTarget()).getParent();
-                           Edge edge = new Edge(firstNode , secondNode , edgeWeight);
-                           edge.setContainsLine(true);
-                           if(graph.addEdge(edge))
-                           {
-                                centerPane.getChildren().addAll(edge , edge.getWeightLable());
-                                for (int i = 0 ; i < centerPane.getChildren().size() ; i++)
-                                {
-                                    if(centerPane.getChildren().get(i) instanceof Edge)
-                                    {
-                                        centerPane.getChildren().get(i).toBack();
-                                    }
-                                }
-                           }
-                           ((Circle)event.getTarget()).setFill(GV.nodeFillColor);
-                       }
-                       else if ( event.getTarget() instanceof Text)
-                       {
-                           setEdgeWeight();
-                           ((Node)((Text)event.getTarget()).getParent()).getCircle().setFill(GV.nodeSelectedColor);
-                           secondNode= (Node)((Text)event.getTarget()).getParent();
-                           Edge edge = new Edge(firstNode , secondNode , edgeWeight);
-                           edge.setContainsLine(true);
-                           if(graph.addEdge(edge))
-                           {
-                               centerPane.getChildren().addAll(edge , edge.getWeightLable());
-                               for (int i = 0 ; i < centerPane.getChildren().size() ; i++)
-                               {
-                                   if(centerPane.getChildren().get(i) instanceof Edge)
-                                   {
-                                       centerPane.getChildren().get(i).toBack();
-                                   }
-                               }
-                           }
-                           ((Node)((Text)event.getTarget()).getParent()).getCircle().setFill(GV.nodeFillColor);
-                       }
+                   case ADD_EDGE_2:
+                       addEdge2(event);
                        break;
                    case IDLE:
                        resetColors();
                        break;
                    case REMOVE_EDGE:
-                       if(event.getTarget() instanceof Edge)
-                       {
-                            System.out.println(graph);
-                            graph.removeEdge((Edge) event.getTarget());
-                            centerPane.getChildren().removeAll(((Edge) event.getTarget()).getWeightLable() ,(Edge)event.getTarget());
-                       }
+                       removeEdge(event);
                        break;
                    case REMOVE_VERTEX:
-                        if(event.getTarget() instanceof Circle)
-                        {
-                            centerPane.getChildren().remove(((Circle)event.getTarget()).getParent());
-                            List<Edge> edges = graph.removeVertex((Node)((Circle)event.getTarget()).getParent());
-                            for (Edge e : edges)
-                            {
-                                centerPane.getChildren().removeAll(e.getWeightLable());
-                            }
-                            centerPane.getChildren().removeAll(edges);
-                        }
-                        else if(event.getTarget()instanceof Text){
-                            centerPane.getChildren().remove(((Text)event.getTarget()).getParent());
-                            List<Edge> edges = graph.removeVertex((Node)((Text)event.getTarget()).getParent());
-                            for (Edge e : edges)
-                            {
-                                centerPane.getChildren().removeAll(e.getWeightLable());
-                            }
-                            centerPane.getChildren().removeAll(edges);
-                        }
+                       removeVertex(event);
                        break;
                }
+        });
+    }
+
+    private void addVertex(MouseEvent event) {
+        //create the node
+        Node node = new Node(label.getAndIncrement() + "" , new Vector2D(event.getX() , event.getY()));
+        //add the node to the graph
+        graph.addVertex(node);
+
+        //add an event for node movement
+        node.addEventHandler(MouseEvent.MOUSE_DRAGGED,event1 -> {
+            switch (state)
+            {
+                case MOVE:
+                    Interfaces.moveNode.move(node);
+                    //move all the edges connected to this node
+                    graph.edges(node).forEach(e -> {
+                        Interfaces.moveEdge.move(e,graph.getEdge(e.getTo() , e.getFrom()));
+                    });
+                    break;
+            }
 
         });
+        centerPane.getChildren().addAll(node);
+    }
+
+    private void removeEdge(MouseEvent event) {
+        if(event.getTarget() instanceof Edge)
+        {
+            System.out.println(graph);
+            graph.removeEdge((Edge) event.getTarget());
+            centerPane.getChildren().removeAll(((Edge) event.getTarget()).getWeightLabel() ,(Edge)event.getTarget());
+        }
+    }
+
+    private void removeVertex(MouseEvent event) {
+        if(event.getTarget() instanceof Circle)
+        {
+            centerPane.getChildren().remove(((Circle)event.getTarget()).getParent());
+            List<Edge> edges = graph.removeVertex((Node)((Circle)event.getTarget()).getParent());
+            for (Edge e : edges)
+            {
+                centerPane.getChildren().removeAll(e.getWeightLabel());
+            }
+            centerPane.getChildren().removeAll(edges);
+        }
+        else if(event.getTarget()instanceof Text){
+            centerPane.getChildren().remove(((Text)event.getTarget()).getParent());
+            List<Edge> edges = graph.removeVertex((Node)((Text)event.getTarget()).getParent());
+            for (Edge e : edges)
+            {
+                centerPane.getChildren().removeAll(e.getWeightLabel());
+            }
+            centerPane.getChildren().removeAll(edges);
+        }
+    }
+
+    private void addEdge(MouseEvent event) {
+        if(event.getTarget() instanceof Circle)
+        {
+            firstNode = (Node)((Circle)event.getTarget()).getParent();
+            ((Node)((Circle)event.getTarget()).getParent()).getCircle().setFill(Color.rgb(209, 57, 61));
+            state = State.ADD_EDGE_2;
+        }else if(event.getTarget() instanceof Text){
+            firstNode = (Node)((Text)event.getTarget()).getParent();
+            ((Node)((Text)event.getTarget()).getParent()).getCircle().setFill(Color.rgb(209, 57, 61));
+            state = State.ADD_EDGE_2;
+        }
+    }
+
+    private void addEdge2(Event event) {
+        if(event.getTarget() instanceof Circle)
+        {
+            ((Node)((Circle)event.getTarget()).getParent()).getCircle().setFill(GV.nodeSelectedColor);
+            secondNode= (Node)((Circle)event.getTarget()).getParent();
+            edgeWeight = Node.distance(firstNode,secondNode);
+            Edge edge = new Edge(firstNode , secondNode , edgeWeight);
+            edge.setContainsLine(true);
+            if(graph.addEdge(edge))
+            {
+                centerPane.getChildren().addAll(edge , edge.getWeightLabel());
+                for (int i = 0 ; i < centerPane.getChildren().size() ; i++)
+                {
+                    if(centerPane.getChildren().get(i) instanceof Edge)
+                    {
+                        centerPane.getChildren().get(i).toBack();
+                    }
+                }
+            }
+            ((Circle)event.getTarget()).setFill(GV.nodeFillColor);
+        }
+        else if ( event.getTarget() instanceof Text)
+        {
+            ((Node)((Text)event.getTarget()).getParent()).getCircle().setFill(GV.nodeSelectedColor);
+            secondNode= (Node)((Text)event.getTarget()).getParent();
+            edgeWeight = Node.distance(firstNode,secondNode);
+            Edge edge = new Edge(firstNode , secondNode , edgeWeight);
+            edge.setContainsLine(true);
+            if(graph.addEdge(edge))
+            {
+                centerPane.getChildren().addAll(edge , edge.getWeightLabel());
+                for (int i = 0 ; i < centerPane.getChildren().size() ; i++)
+                {
+                    if(centerPane.getChildren().get(i) instanceof Edge)
+                    {
+                        centerPane.getChildren().get(i).toBack();
+                    }
+                }
+            }
+            ((Node)((Text)event.getTarget()).getParent()).getCircle().setFill(GV.nodeFillColor);
+        }
     }
 
 }
