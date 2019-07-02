@@ -30,7 +30,12 @@ public class Vector2D {
         this.y = y;
     }
 
-
+    public double distance(Vector2D destination)
+    {
+        return Math.sqrt(Math.pow(destination.getX()-this.getX() , 2) +
+                Math.pow(destination.getY()-this.getY() , 2)
+        );
+    }
 
     @Override
     public String toString() {

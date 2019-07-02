@@ -1,12 +1,10 @@
 package TSP.graph;
 
 import TSP.GV;
-import javafx.scene.layout.Border;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.RadialGradient;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
+
 
 public class Node extends StackPane {
 
@@ -52,31 +50,26 @@ public class Node extends StackPane {
     }
 
 
-    public static double distance(Node from , Node to)
+    public double distance( Node to)
     {
-        double distance = Math.sqrt(Math.pow(to.getLocation().getX()-from.getLocation().getX() , 2) +
-                Math.pow(to.getLocation().getY()-from.getLocation().getY() , 2)
-        );
-        return distance;
+        return this.location.distance(to.getLocation());
     }
 
-    public static String distanceStr(Node from , Node to)
-    {
 
-        return String.format("%.2f",distance(from,to));
-    }
-
-    public static double angle(Edge edge)
-    {
-        Node from = edge.getFrom();
-        Node to = edge.getTo();
-        double slope = (to.getLocation().getY() - from.getLocation().getY()) / (to.getLocation().getX() - from.getLocation().getX());
-        System.out.println(Math.atan(slope));
-        return Math.atan(slope);
-    }
 
     @Override
     public String toString() {
         return label.getText() + " : "+ location;
     }
+
+    @Override
+    public boolean equals( Object obj) {
+        if(obj instanceof Node)
+        {
+            Node node = (Node)obj;
+            return this.getLabel().getText().equals(node.getLabel().getText());
+        }
+        return false;
+    }
+
 }

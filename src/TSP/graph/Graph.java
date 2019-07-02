@@ -1,6 +1,8 @@
 package TSP.graph;
 
 
+import TSP.GV;
+
 import java.util.*;
 
 public class Graph {
@@ -24,7 +26,7 @@ public class Graph {
         if(adj.get(edge.getFrom()).contains(edge))
            return false;
         adj.get(edge.getFrom()).add(edge);
-        adj.get(edge.getTo()).add(reverseEdge(edge));
+        adj.get(edge.getTo()).add(edge.reverse());
         return true;
 
     }
@@ -68,23 +70,17 @@ public class Graph {
     }
 
 
-    private Edge reverseEdge(Edge edge)
-    {
-        Edge e = new Edge(edge.getTo() , edge.getFrom() , edge.getWeight());
-        e.setContainsLine(false);
-        return e;
-    }
-    public List<Edge> edges(Node node)
+    public List<Edge> getAdj(Node node)
     {
         return adj.get(node);
     }
-    public void addVertex(Node vertex)
+    public void addNode(Node vertex)
     {
         if(!adj.containsKey(vertex))
             adj.put(vertex , new LinkedList());
     }
 
-    public List<Edge> removeVertex(Node node)
+    public List<Edge> removeNode(Node node)
     {
         if(!adj.containsKey(node))
             return null;
@@ -111,6 +107,25 @@ public class Graph {
         adj.remove(node);
         System.out.println(edges);
         return edges;
+    }
+
+
+
+
+    public void moveNode(Node node){
+
+        node.setLayoutX(GV.mousePosition.getX() - GV.radius);
+        node.setLayoutY(GV.mousePosition.getY()- GV.radius);
+        node.getLocation().set(GV.mousePosition.getX() , GV.mousePosition.getY());
+        this.getAdj(node).forEach(e -> {
+            e.getWeightLabel().setLayoutX((e.getFrom().getLocation().getX() + e.getTo().getLocation().getX())/2 - (e.getWeightLabel().getWidth()/2));
+            e.getWeightLabel().setLayoutY((e.getFrom().getLocation().getY() + e.getTo().getLocation().getY())/2 - (e.getWeightLabel().getHeight()/2));
+            e.getWeightLabel().setText(String.format("%.2f" ,e.getFrom().distance(e.getTo()) ));
+            e.getLine().setStartX(e.getTo().getLocation().getX());
+            e.getLine().setStartY(e.getTo().getLocation().getY());
+            e.getLine().setEndX(e.getFrom().getLocation().getX());
+            e.getLine().setEndY(e.getFrom().getLocation().getY());
+        });
     }
 
 

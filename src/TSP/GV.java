@@ -14,10 +14,9 @@ public class GV {
     public static final String backgroundColor = "rgb(152, 204, 108);";
     public static final String toolbarColor = "rgb(110, 168, 164);";
     public static final Color nodeFillColor = Color.rgb(248, 235, 152);
-    public static final Color nodeSelectedColor= Color.BLACK;
+    public static final Color nodeSelectedColor= Color.rgb(209, 57, 61);
     public static final Color nodeStrokeColor= Color.BLACK;
     public static final Color edgeColor = Color.BLACK;
-    public static final String edgeWeightRegex = "[0-9]*";
 
 
 

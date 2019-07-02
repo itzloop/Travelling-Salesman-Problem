@@ -2,9 +2,7 @@ package TSP;
 
 import TSP.api.Views;
 import javafx.application.Application;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 public class Main extends Application {
@@ -16,9 +14,7 @@ public class Main extends Application {
         Views views = new Views();
         primaryStage.setScene(new Scene(views.getParent()));
         views.handleEvents();
-        primaryStage.setOnCloseRequest(event -> {
-            System.exit(0);
-        });
+        primaryStage.setOnCloseRequest(event -> System.exit(0));
         primaryStage.show();
     }
 }
