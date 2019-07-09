@@ -5,10 +5,6 @@ import javafx.scene.Group;
 import javafx.scene.control.Label;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
-import sun.security.x509.EDIPartyName;
-
-import java.awt.*;
-import java.util.Optional;
 
 public class Edge extends Group {
 
@@ -27,18 +23,21 @@ public class Edge extends Group {
         this.weight = weight;
         this.line = new Line(from.getLocation().getX() , from.getLocation().getY(),to.getLocation().getX() , to.getLocation().getY());
         this.line.setStrokeWidth(GV.edgeStrokeSize);
-        this.line.setStroke(GV.edgeColor);
+        //System.out.println((int)(Math.random()*255)  + " | " + (int)(Math.random()*255)  + " | " + (int)(Math.random()*255) );
+        //this.line.setStroke(Color.rgb((int)(Math.random()*255) , (int)(Math.random()*255 ), (int)(Math.random()*255)));
+        this.line.setStroke(Color.BLACK);
         this.weightLabel = new Label(String.format("%.2f" , weight));
         this.weightLabel.setLayoutX((getFrom().getLocation().getX() + getTo().getLocation().getX())/2 - getWeightLabel().getWidth()/2);
         this.weightLabel.setLayoutY((getFrom().getLocation().getY() + getTo().getLocation().getY())/2 - getWeightLabel().getHeight()/2);
         this.weightLabel.setTextFill(Color.BLACK);
         this.weightLabel.setStyle("-fx-font-size: 15;-fx-background-color: "+GV.backgroundColor);
-        System.out.println(this.weightLabel + " | " + this.getLine());
         this.getChildren().addAll(this.line, this.weightLabel);
+        if(!GV.showWeight)
+            this.weightLabel.setVisible(false);
 
     }
 
-    private Edge( Node from , Node to , Line line , Label weightLabel , double weight)
+    public Edge( Node from , Node to , Line line , Label weightLabel , double weight)
     {
         this.from = from;
         this.to = to;
@@ -58,38 +57,31 @@ public class Edge extends Group {
         this.weightLabel = weightLabel;
     }
 
-    public void setFrom(Node from) {
+    public void setFrom(Node from)
+    {
         this.from = from;
+        updateLocation();
     }
 
     public void setTo(Node to) {
         this.to = to;
+        updateLocation();
+    }
+
+    void updateLocation()
+    {
+        line.setStartX(from.getLocation().getX());
+        line.setStartY(from.getLocation().getY());
+        line.setEndX(to.getLocation().getX());
+        line.setEndY(to.getLocation().getY());
+        weight = from.distance(to);
     }
 
     public void setWeight(double weight) {
         this.weight = weight;
     }
 
-    public void switchEdge(Edge edge)
-    {
-        Node from = edge.getFrom();
-        Node to = edge.getTo();
-        Line line = edge.getLine();
-        Label weightLabel = edge.getWeightLabel();
-        double weight = edge.getWeight();
 
-        edge.setFrom(this.from);
-        edge.setTo(this.to);
-        edge.setLine(this.line);
-        edge.setWeightLabel(this.weightLabel);
-        edge.setWeight(this.weight);
-
-        this.setFrom(from);
-        this.setTo(to);
-        this.setLine(line);
-        this.setWeightLabel(weightLabel);
-        this.setWeight(weight);
-    }
 
     public Node getFrom() {
         return from;
@@ -134,6 +126,7 @@ public class Edge extends Group {
 
         return from.getLabel().getText() + " -> " + to.getLabel().getText() + " weight: " + weight;
     }
+
 
 }
 

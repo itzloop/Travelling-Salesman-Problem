@@ -2,25 +2,27 @@ package TSP.graph;
 
 
 import TSP.GV;
+import javafx.event.EventHandler;
+import javafx.scene.input.MouseEvent;
 
 import java.util.*;
 
 public class Graph {
 
-    int vertices;
-    Map<Node,List<Edge>> adj;
+    private int vertices;
+    Map<Node,LinkedList<Edge>> adj;
 
     public Graph()
     {
         this.vertices = 0;
-        adj = new HashMap<>();
+        adj = new LinkedHashMap<>();
 
     }
     public boolean addEdge(Edge edge){
         if(!adj.containsKey(edge.getFrom()) )
-            adj.put(edge.getFrom() , new LinkedList());
+            addNode(edge.getFrom());
         if(!adj.containsKey(edge.getTo()))
-            adj.put(edge.getTo(), new LinkedList());
+            addNode(edge.getTo());
         if (edge.getFrom().equals(edge.getTo()))
             return false;
         if(adj.get(edge.getFrom()).contains(edge))
@@ -30,6 +32,36 @@ public class Graph {
         return true;
 
     }
+
+
+
+    public Set<Node> getAdjKeySet() {
+        return adj.keySet();
+    }
+
+
+
+    public void printNode(Node[] nodes)
+    {
+        for (Node node : nodes)
+        {
+            System.out.print(node+ " ");
+        }
+        System.out.println();
+    }
+
+    public void clearEdges()
+    {
+        for (Node n : adj.keySet())
+        {
+            adj.put(n , new LinkedList<>());
+        }
+    }
+
+
+
+
+
 
     public boolean removeEdge(Edge edge) {
         if (!adj.containsKey(edge.getFrom()) || !adj.containsKey(edge.getTo()))
@@ -74,16 +106,19 @@ public class Graph {
     {
         return adj.get(node);
     }
-    public void addNode(Node vertex)
-    {
-        if(!adj.containsKey(vertex))
-            adj.put(vertex , new LinkedList());
-    }
-
-    public List<Edge> removeNode(Node node)
+    public void addNode(Node node)
     {
         if(!adj.containsKey(node))
-            return null;
+        {
+            adj.put(node , new LinkedList());
+            this.vertices++;
+        }
+    }
+
+    public Optional<List<Edge>> removeNode(Node node)
+    {
+        if(!adj.containsKey(node))
+            return Optional.empty();
         List<Edge> edges = new ArrayList<>();
         edges.addAll(adj.get(node));
         for (Edge e : adj.get(node))
@@ -105,8 +140,8 @@ public class Graph {
             }
         }
         adj.remove(node);
-        System.out.println(edges);
-        return edges;
+
+        return Optional.ofNullable(edges);
     }
 
 
@@ -115,8 +150,12 @@ public class Graph {
     public void moveNode(Node node){
 
         node.setLayoutX(GV.mousePosition.getX() - GV.radius);
-        node.setLayoutY(GV.mousePosition.getY()- GV.radius);
+        node.setLayoutY(GV.mousePosition.getY() - GV.radius);
         node.getLocation().set(GV.mousePosition.getX() , GV.mousePosition.getY());
+
+        System.out.println(this.getAdj(node));
+        if(this.adj.get(node) == null)
+            return;
         this.getAdj(node).forEach(e -> {
             e.getWeightLabel().setLayoutX((e.getFrom().getLocation().getX() + e.getTo().getLocation().getX())/2 - (e.getWeightLabel().getWidth()/2));
             e.getWeightLabel().setLayoutY((e.getFrom().getLocation().getY() + e.getTo().getLocation().getY())/2 - (e.getWeightLabel().getHeight()/2));
@@ -127,8 +166,6 @@ public class Graph {
             e.getLine().setEndY(e.getFrom().getLocation().getY());
         });
     }
-
-
 
 
     @Override
@@ -144,5 +181,30 @@ public class Graph {
             graph.append("\n*********************************\n");
         }
         return graph.toString();
+    }
+
+
+
+    public boolean contains(Edge e)
+    {
+        for (Node n : adj.keySet())
+        {
+            if(adj.get(n).contains(e) || adj.get(n).contains(e.reverse()))
+                return true;
+        }
+        return false;
+    }
+
+    @Override
+    public Graph clone() {
+        Graph graph = new Graph();
+        for (Node n : this.adj.keySet())
+        {
+            for (Edge e : this.adj.get(n))
+            {
+                graph.addEdge(new Edge(n , e.getTo() , e.getWeight()));
+            }
+        }
+        return graph;
     }
 }

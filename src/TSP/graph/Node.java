@@ -1,6 +1,8 @@
 package TSP.graph;
 
 import TSP.GV;
+import javafx.event.EventHandler;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
@@ -8,7 +10,7 @@ import javafx.scene.text.Text;
 
 public class Node extends StackPane {
 
-
+    private int index;
     private Text label;
     private Circle circle;
     private Vector2D location;
@@ -16,6 +18,7 @@ public class Node extends StackPane {
         circle = new Circle(GV.radius ,GV.nodeFillColor);
         circle.setStroke(GV.nodeStrokeColor);
         circle.setStrokeWidth(GV.nodeStrokeSize);
+        index = Integer.parseInt(label);
         this.label = new Text(label);
         this.label.setStyle("-fx-font-size: 25");
         this.location = location;
@@ -25,12 +28,20 @@ public class Node extends StackPane {
     }
 
 
+    public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
+
     public Text getLabel() {
         return label;
     }
 
-    public void setLabel(Text label) {
-        this.label = label;
+    public void setLabel(String label) {
+        this.label.setText(label);
     }
 
     public Circle getCircle() {
@@ -59,7 +70,7 @@ public class Node extends StackPane {
 
     @Override
     public String toString() {
-        return label.getText() + " : "+ location;
+        return label.getText() + " , ";
     }
 
     @Override
@@ -71,5 +82,9 @@ public class Node extends StackPane {
         }
         return false;
     }
-
+//
+//    @Override
+//    public Node clone()  {
+//        return new Node(this.label.getText() , this.location.clone());
+//    }
 }

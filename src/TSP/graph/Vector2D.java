@@ -13,6 +13,11 @@ public class Vector2D {
         this.x = x;
         this.y = y;
     }
+    public void set(Vector2D vector2D)
+    {
+        this.x = vector2D.getX();
+        this.y = vector2D.getY();
+    }
 
     public double getX() {
         return x;
@@ -40,5 +45,10 @@ public class Vector2D {
     @Override
     public String toString() {
         return "("+x+ " , "+y+")";
+    }
+
+    @Override
+    public Vector2D clone()  {
+        return new Vector2D(this.x , this.y);
     }
 }

@@ -9,6 +9,7 @@ public class GV {
     public static final double screenHeight = Screen.getPrimary().getBounds().getHeight();
     public static final double radius = 25;
     public static Vector2D mousePosition = new Vector2D(0,0);
+    public static Vector2D nodeCenterPosition = new Vector2D(0,0);
     public static final double edgeStrokeSize = 6;
     public static final double nodeStrokeSize = 2;
     public static final String backgroundColor = "rgb(152, 204, 108);";
@@ -19,5 +20,5 @@ public class GV {
     public static final Color edgeColor = Color.BLACK;
 
 
-
+    public static boolean showWeight = true;
 }
